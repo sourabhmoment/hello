@@ -1,0 +1,45 @@
+public class ManagerRegisterViewModel extends ViewModel {
+
+@NonNull
+
+private final MutableLiveData<UIModel<ActivationCode>> activationCodeLiveData = new MutableLiveData<>();
+
+private Disposable disposable;
+
+private IRestApi restApi;
+
+@Inject
+
+public ManagerRegisterViewModel(IRestApi restApi) {
+
+this.restApi = restApi;
+
+}
+
+@NonNull
+
+public MutableLiveData<UIModel<ActivationCode>> getActivationCodeLiveData(CreateActivationCode createActivationCode) {
+
+disposable = restApi.createActivationCode(createActivationCode)
+
+.map(UIModel::success)
+
+.onErrorReturn(UIModel::new)
+
+.observeOn(AndroidSchedulers.mainThread())
+
+.startWith(new UIModel<>(true))
+
+.subscribe(activationCode -> activationCodeLiveData.setValue(activationCode),
+
+throwable -> {
+
+throw new OnErrorNotImplementedException(throwable);
+
+});
+
+return activationCodeLiveData;
+
+}
+
+}
